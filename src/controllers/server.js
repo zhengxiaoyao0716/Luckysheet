@@ -255,7 +255,8 @@ const server = {
 					if(flag) {
 						Store.cooperativeEdit.changeCollaborationSize.forEach(val => {
 							if(val.id == id) {
-								val.v = item.v[0] || item.range[0]
+								// TODO range 可能为空
+								val.v = item.v[0] || (item.range && item.range[0])
 								val.i = index
 							}
 						})
