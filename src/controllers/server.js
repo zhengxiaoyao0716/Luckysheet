@@ -194,14 +194,18 @@ const server = {
 				_this.retryTimer = setInterval(function(){
 	                _this.websocket.send("rub");
 	            }, 60000);
+
+				method.createHookFunction('updateWsOpen', _this.websocket);
 	        }
 
-	        //客户端接收服务端数据时触发
-	        _this.websocket.onmessage = function(result){
-				Store.result = result
+			//客户端接收服务端数据时触发
+			_this.websocket.onmessage = function (result) {
+				let ret = method.createHookFunction('cooperativeMessage', result);
+				if (ret === false) return;
+				Store.result = result;
 				let data = new Function("return " + result.data)();
-        method.createHookFunction('cooperativeMessage', data)
-				console.info(data);
+				console.debug(data);
+
 				let type = data.type;
 				let {message,id} = data;
 				// 用户退出时，关闭协同编辑时其提示框
@@ -218,7 +222,7 @@ const server = {
                 const oldIndex = data.data.v.index;
                 const sheetToUpdate = Store.luckysheetfile.filter((sheet)=> sheet.index === oldIndex)[0];
                 if (sheetToUpdate !== null) {
-                  setTimeout(() => {
+                //   setTimeout(() => {
                     const index = data.data.i;
                     sheetToUpdate.index = index;
                     Store.currentSheetIndex = index;
@@ -226,7 +230,7 @@ const server = {
                     $(`#luckysheet-sheets-item${oldIndex}`).attr('data-index', index);
                     $(`#luckysheet-sheets-item${oldIndex}`).prop('id', `luckysheet-sheets-item${index}`);
                     $(`#luckysheet-datavisual-selection-set-${oldIndex}`).prop('id', `luckysheet-datavisual-selection-set-${index}`);
-                  }, 1);
+                //   }, 1);
                 }
 	            }
 	            else if(type == 2){ //更新数据
